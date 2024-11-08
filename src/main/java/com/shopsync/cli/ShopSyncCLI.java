@@ -2,202 +2,210 @@ package com.shopsync.cli;
 
 import com.shopsync.application.CartService;
 import com.shopsync.application.StoreService;
-import com.shopsync.domain.model.Product;
+import com.shopsync.application.dto.ProductDto;
+import com.shopsync.application.mapper.ProductDtoMapper;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Scanner;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class ShopSyncCLI {
-  private final StoreService storeService;
-  private final CartService cartService;
-  private final Scanner scanner;
+    private final StoreService storeService;
+    private final CartService cartService;
+    private final Scanner scanner;
 
-  public ShopSyncCLI(StoreService storeService, CartService cartService) {
-    this.storeService = storeService;
-    this.cartService = cartService;
-    this.scanner = new Scanner(System.in);
-  }
-
-  public void start() {
-    System.out.println("Welcome to ShopSync CLI! Type 'help' for a list of commands.");
-
-    while (true) {
-      System.out.print("> ");
-      String input = scanner.nextLine().trim();
-      String[] commandParts = input.split(" ");
-      String command = commandParts[0];
-
-      switch (command) {
-        case "help":
-          displayHelp();
-          break;
-        case "addProduct":
-          addProduct(commandParts);
-          break;
-        case "viewProduct":
-          viewProduct(commandParts);
-          break;
-        case "listProducts":
-          listProducts();
-          break;
-        case "deleteProduct":
-          deleteProduct(commandParts);
-        case "addProductToCart":
-          addProductToCart(commandParts);
-          break;
-        case "deleteProductFromCart":
-          deleteProductFromCart(commandParts);
-        case "viewCart":
-          viewCart();
-          break;
-        case "exit":
-          System.out.println("Exiting ShopSync CLI. Goodbye!");
-          return;
-        default:
-          System.out.println("Unknown command. Type 'help' for a list of commands.");
-      }
-    }
-  }
-
-  private void displayHelp() {
-    System.out.println("Available commands:");
-    System.out.println("addProduct [name] [price]           - Add a new product");
-    System.out.println("viewProduct [id]                    - View a product by ID");
-    System.out.println("listProducts                        - List all products");
-    System.out.println("delete [id]                         - Delete a product by ID");
-    System.out.println("addProductToCart [id] [quantity]    - Add a product to the cart");
-    System.out.println(
-        "deleteProductFromCart [id]          - Delete a product from the cart by ID");
-    System.out.println("viewCart                            - List all products in cart");
-    System.out.println("exit                                - Exit the CLI");
-  }
-
-  private void addProduct(String[] commandParts) {
-    if (commandParts.length < 3) {
-      System.out.println("Usage: add [name] [price]");
-      return;
+    public ShopSyncCLI(StoreService storeService, CartService cartService) {
+        this.storeService = storeService;
+        this.cartService = cartService;
+        this.scanner = new Scanner(System.in);
     }
 
-    String name = commandParts[1];
-    double price;
+    public void start() {
+        System.out.println("Welcome to ShopSync CLI! Type 'help' for a list of commands.");
 
-    try {
-      price = Double.parseDouble(commandParts[2]);
-    } catch (NumberFormatException e) {
-      System.out.println("Invalid price format. Please enter a valid number.");
-      return;
+        while (true) {
+            System.out.print("> ");
+            String input = scanner.nextLine().trim();
+            String[] commandParts = input.split(" ");
+            String command = commandParts[0];
+
+            switch (command) {
+                case "help":
+                    displayHelp();
+                    break;
+                case "addProduct":
+                    addProduct(commandParts);
+                    break;
+                case "viewProduct":
+                    viewProduct(commandParts);
+                    break;
+                case "listProducts":
+                    listProducts();
+                    break;
+                case "deleteProduct":
+                    deleteProduct(commandParts);
+                    break;
+                case "addProductToCart":
+                    addProductToCart(commandParts);
+                    break;
+                case "deleteProductFromCart":
+                    deleteProductFromCart(commandParts);
+                    break;
+                case "viewCart":
+                    viewCart();
+                    break;
+                case "exit":
+                    System.out.println("Exiting ShopSync CLI. Goodbye!");
+                    return;
+                default:
+                    System.out.println("Unknown command. Type 'help' for a list of commands.");
+            }
+        }
     }
 
-    Product product = new Product(name, price);
-
-    storeService.addProduct(product);
-    System.out.println("Product added: " + name + " with price " + price);
-  }
-
-  private void viewProduct(String[] commandParts) {
-    if (commandParts.length < 2) {
-      System.out.println("Usage: view [id]");
-      return;
+    private void displayHelp() {
+        System.out.println("Available commands:");
+        System.out.println("addProduct [name] [price]           - Add a new product");
+        System.out.println("viewProduct [id]                    - View a product by ID");
+        System.out.println("listProducts                        - List all products");
+        System.out.println("deleteProduct [id]                  - Delete a product by ID");
+        System.out.println("addProductToCart [id] [quantity]    - Add a product to the cart");
+        System.out.println(
+                "deleteProductFromCart [id]          - Delete a product from the cart by ID");
+        System.out.println("viewCart                            - List all products in cart");
+        System.out.println("exit                                - Exit the CLI");
     }
 
-    String productId = commandParts[1];
-    Optional<Product> product = storeService.getProductById(UUID.fromString(productId));
+    private void addProduct(String[] commandParts) {
+        if (commandParts.length < 3) {
+            System.out.println("Usage: add [name] [price]");
+            return;
+        }
 
-    if (product.isPresent()) {
-      System.out.println("Product ID: " + product.get().getId());
-      System.out.println("Name: " + product.get().getName());
-      System.out.println("Price: " + product.get().getPrice());
-    } else {
-      System.out.println("Product with ID " + productId + " not found.");
-    }
-  }
+        String name = commandParts[1];
+        double price;
 
-  private void listProducts() {
-    System.out.println("All Products:");
-    for (Product product : storeService.getAllProducts()) {
-      System.out.println(
-          "- ID: "
-              + product.getId()
-              + ", Name: "
-              + product.getName()
-              + ", Price: "
-              + product.getPrice());
-    }
-  }
+        try {
+            price = Double.parseDouble(commandParts[2]);
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid price format. Please enter a valid number.");
+            return;
+        }
 
-  private void deleteProduct(String[] commandParts) {
-    if (commandParts.length < 2) {
-      System.out.println("Usage: delete [id]");
-      return;
+        ProductDto productDto = new ProductDto("", name, price);
+
+        storeService.addProduct(ProductDtoMapper.toEntity(productDto));
+        System.out.println("Product added: " + name + " with price " + price);
     }
 
-    String productId = commandParts[1];
-    storeService.deleteProduct(UUID.fromString(productId));
-    System.out.println("Product with ID " + productId + " has been deleted.");
-  }
+    private void viewProduct(String[] commandParts) {
+        if (commandParts.length < 2) {
+            System.out.println("Usage: view [id]");
+            return;
+        }
 
-  private void addProductToCart(String[] commandParts) {
-    if (commandParts.length < 3) {
-      System.out.println("Usage: addProductToCart [id] [quantity]");
-      return;
+        String productId = commandParts[1];
+        ProductDto productDto = ProductDtoMapper.toDto(storeService.getProductById(UUID.fromString(productId)));
+
+        if (productDto != null) {
+            System.out.println("Product ID: " + productDto.getId());
+            System.out.println("Name: " + productDto.getName());
+            System.out.println("Price: " + productDto.getPrice());
+        } else {
+            System.out.println("Product with ID " + productId + " not found.");
+        }
     }
 
-    String productId = commandParts[1];
-    int quantity;
+    private void listProducts() {
+        System.out.println("All Products:");
+        List<ProductDto> productDtos = storeService.getAllProducts().stream()
+                .map(ProductDtoMapper::toDto)
+                .collect(Collectors.toList());
 
-    try {
-      quantity = Integer.parseInt(commandParts[2]);
-    } catch (NumberFormatException e) {
-      System.out.println("Invalid quantity format. Please enter a valid number.");
-      return;
+        for (ProductDto product : productDtos) {
+            System.out.println(
+                    "- ID: "
+                            + product.getId()
+                            + ", Name: "
+                            + product.getName()
+                            + ", Price: "
+                            + product.getPrice());
+        }
     }
 
-    Optional<Product> productToAdd = storeService.getProductById(UUID.fromString(productId));
-    if (productToAdd != null) {
-      Product product = productToAdd.get();
-      cartService.addProduct(product, quantity);
-      System.out.println(quantity + " of " + product.getName() + " added to the cart.");
-    } else {
-      System.out.println("Product not found.");
-    }
-  }
+    private void deleteProduct(String[] commandParts) {
+        if (commandParts.length < 2) {
+            System.out.println("Usage: deleteProduct [id]");
+            return;
+        }
 
-  private void deleteProductFromCart(String[] commandParts) {
-    if (commandParts.length < 2) {
-      System.out.println("Usage: deleteProductFromCart [id]");
-      return;
+        String productId = commandParts[1];
+        storeService.deleteProduct(UUID.fromString(productId));
+        System.out.println("Product with ID " + productId + " has been deleted.");
     }
 
-    String productId = commandParts[1];
+    private void addProductToCart(String[] commandParts) {
+        if (commandParts.length < 3) {
+            System.out.println("Usage: addProductToCart [id] [quantity]");
+            return;
+        }
 
-    Optional<Product> productToDelete = storeService.getProductById(UUID.fromString(productId));
-    if (productToDelete != null) {
-      Product product = productToDelete.get();
-      cartService.removeProduct(product);
-      System.out.println("Product " + product.getName() + " removed from the cart.");
-    } else {
-      System.out.println("Product not found in the cart.");
-    }
-  }
+        String productId = commandParts[1];
+        int quantity;
 
-  private void viewCart() {
-    System.out.println("Items in your cart:");
-    for (Map.Entry<Product, Integer> entry : cartService.viewCart().entrySet()) {
-      Product product = entry.getKey();
-      Integer quantity = entry.getValue();
-      System.out.println(
-          "- ID: "
-              + product.getId()
-              + ", Name: "
-              + product.getName()
-              + ", Price: "
-              + product.getPrice()
-              + ", Quantity: "
-              + quantity);
+        try {
+            quantity = Integer.parseInt(commandParts[2]);
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid quantity format. Please enter a valid number.");
+            return;
+        }
+
+        ProductDto productDto = ProductDtoMapper.toDto(storeService.getProductById(UUID.fromString(productId)));
+        if (productDto != null) {
+            cartService.addProductToCart(ProductDtoMapper.toEntity(productDto), quantity);
+            System.out.println(quantity + " of " + productDto.getName() + " added to the cart.");
+        } else {
+            System.out.println("Product not found.");
+        }
     }
 
-    double totalPrice = cartService.getTotalPrice();
-    System.out.println("Total price: " + totalPrice);
-  }
+    private void deleteProductFromCart(String[] commandParts) {
+        if (commandParts.length < 2) {
+            System.out.println("Usage: deleteProductFromCart [id]");
+            return;
+        }
+
+        String productId = commandParts[1];
+
+        ProductDto productDto = ProductDtoMapper.toDto(storeService.getProductById(UUID.fromString(productId)));
+        if (productDto != null) {
+            cartService.removeProductFromCart(productDto.getId());
+            System.out.println("Product " + productDto.getName() + " removed from the cart.");
+        } else {
+            System.out.println("Product not found in the cart.");
+        }
+    }
+
+    private void viewCart() {
+        System.out.println("Items in your cart:");
+        Map<ProductDto, Integer> cartItemsDto = cartService.viewCart().entrySet().stream()
+                .collect(
+                        Collectors.toMap(
+                                entry -> ProductDtoMapper.toDto(entry.getKey()), Map.Entry::getValue));
+
+        cartItemsDto.forEach(
+                (productDto, quantity) -> {
+                    System.out.println(
+                            "Product: "
+                                    + productDto.getName()
+                                    + ", Price: "
+                                    + productDto.getPrice()
+                                    + ", Quantity: "
+                                    + quantity);
+                });
+
+        double totalPrice = cartService.getTotalPrice();
+        System.out.println("Total price: " + totalPrice);
+    }
 }

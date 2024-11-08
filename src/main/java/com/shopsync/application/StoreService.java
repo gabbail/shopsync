@@ -3,7 +3,6 @@ package com.shopsync.application;
 import com.shopsync.domain.model.Product;
 import com.shopsync.domain.repository.StoreRepository;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public class StoreService {
@@ -17,7 +16,7 @@ public class StoreService {
     storeRepository.save(product);
   }
 
-  public Optional<Product> getProductById(UUID productId) {
+  public Product getProductById(UUID productId) {
     return storeRepository.findById(productId);
   }
 

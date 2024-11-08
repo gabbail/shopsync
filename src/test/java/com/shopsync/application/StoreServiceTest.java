@@ -11,7 +11,6 @@ import com.shopsync.domain.model.Product;
 import com.shopsync.domain.repository.StoreRepository;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,7 +24,6 @@ public class StoreServiceTest {
   @InjectMocks private StoreService storeService;
 
   private final double PRODUCT_PRICE = 1000;
-  private final int PRODUCT_QUANTITY = 1;
 
   @BeforeEach
   public void setUp() {
@@ -45,12 +43,12 @@ public class StoreServiceTest {
   @Test
   public void givenProductId_whenRetrieved_thenCorrectProductIsReturned() {
     Product product = new Product("Laptop", PRODUCT_PRICE);
-    when(storeRepository.findById(product.getId())).thenReturn(Optional.of(product));
+    when(storeRepository.findById(product.getId())).thenReturn(product);
 
-    Optional<Product> retrievedProduct = storeService.getProductById(product.getId());
+    Product retrievedProduct = storeService.getProductById(product.getId());
 
-    assertTrue(retrievedProduct.isPresent(), "Product should be present");
-    assertEquals("Laptop", retrievedProduct.get().getName(), "Product name should match");
+    assertTrue(retrievedProduct != null, "Product should be present");
+    assertEquals("Laptop", retrievedProduct.getName(), "Product name should match");
     verify(storeRepository, times(1)).findById(product.getId());
   }
 
@@ -79,11 +77,11 @@ public class StoreServiceTest {
   @Test
   public void givenNonExistentProductId_whenRetrieved_thenReturnsEmpty() {
     UUID productId = UUID.randomUUID();
-    when(storeRepository.findById(productId)).thenReturn(Optional.empty());
+    when(storeRepository.findById(productId)).thenReturn(null);
 
-    Optional<Product> retrievedProduct = storeService.getProductById(productId);
+    Product retrievedProduct = storeService.getProductById(productId);
 
-    assertFalse(retrievedProduct.isPresent(), "Product should not be found for nonexistent ID");
+    assertTrue(retrievedProduct == null, "Product should not be found for nonexistent ID");
     verify(storeRepository, times(1)).findById(productId);
   }
 }

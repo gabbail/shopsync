@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 import com.shopsync.domain.model.Product;
@@ -14,8 +13,8 @@ public class StoreInMemoryRepository implements StoreRepository {
   private final Map<UUID, Product> store = new HashMap<>();
 
   @Override
-  public Optional<Product> findById(UUID productId) {
-    return Optional.ofNullable(store.get(productId));
+  public Product findById(UUID productId) {
+    return store.get(productId);
   }
 
   @Override

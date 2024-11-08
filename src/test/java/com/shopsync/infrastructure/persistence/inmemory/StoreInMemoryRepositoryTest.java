@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.shopsync.domain.model.Product;
 import com.shopsync.domain.repository.StoreRepository;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -24,10 +23,10 @@ public class StoreInMemoryRepositoryTest {
     Product product = new Product("Laptop", 899.99);
     storeRepository.save(product);
 
-    Optional<Product> foundProduct = storeRepository.findById(product.getId());
+    Product foundProduct = storeRepository.findById(product.getId());
 
-    assertTrue(foundProduct.isPresent(), "Product should be found");
-    assertEquals(product.getName(), foundProduct.get().getName(), "Product name should match");
+    assertTrue(foundProduct != null, "Product should be found");
+    assertEquals(product.getName(), foundProduct.getName(), "Product name should match");
   }
 
   @Test
@@ -35,13 +34,13 @@ public class StoreInMemoryRepositoryTest {
     Product product = new Product("Laptop", 899.99);
     storeRepository.save(product);
     assertTrue(
-        storeRepository.findById(product.getId()).isPresent(),
+        storeRepository.findById(product.getId()) != null,
         "Product should be present before deletion");
 
     storeRepository.delete(product.getId());
 
-    assertFalse(
-        storeRepository.findById(product.getId()).isPresent(),
+    assertTrue(
+        storeRepository.findById(product.getId()) == null,
         "Product should not be found after deletion");
   }
 
@@ -61,8 +60,8 @@ public class StoreInMemoryRepositoryTest {
 
   @Test
   public void givenProductDoesNotExist_whenFindById_thenReturnsEmpty() {
-    Optional<Product> foundProduct = storeRepository.findById(UUID.randomUUID());
+    Product foundProduct = storeRepository.findById(UUID.randomUUID());
 
-    assertFalse(foundProduct.isPresent(), "Product should not be found");
+    assertTrue(foundProduct == null, "Product should not be found");
   }
 }

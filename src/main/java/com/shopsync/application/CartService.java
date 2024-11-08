@@ -1,36 +1,37 @@
 package com.shopsync.application;
 
 import java.util.Map;
+import java.util.UUID;
 
-import com.shopsync.domain.model.Cart;
 import com.shopsync.domain.model.Product;
+import com.shopsync.domain.repository.CartRepository;
 
 public class CartService {
-  private Cart cart;
+  private final CartRepository cartRepository;
 
-  public CartService() {
-    this.cart = new Cart();
+  public CartService(CartRepository cartRepository) {
+    this.cartRepository = cartRepository;
   }
 
-  public void addProduct(Product product, int quantity) {
+  public void addProductToCart(Product product, int quantity) {
     if (product == null || quantity <= 0) {
       throw new IllegalArgumentException("Invalid product or quantity.");
     }
-    cart.addProduct(product, quantity);
+    cartRepository.addProduct(product, quantity);
   }
 
-  public void removeProduct(Product product) {
-    if (product == null) {
-      throw new IllegalArgumentException("Product cannot be null.");
+  public void removeProductFromCart(String id) {
+    if (id == "") {
+      throw new IllegalArgumentException("Product id cannot be null.");
     }
-    cart.removeProduct(product);
+    cartRepository.removeProduct(UUID.fromString(id));
   }
 
   public Map<Product, Integer> viewCart() {
-    return cart.getItems();
+    return cartRepository.getCartItems();
   }
 
   public double getTotalPrice() {
-    return cart.getTotalPrice();
+    return cartRepository.getTotalPrice();
   }
 }

@@ -1,7 +1,7 @@
 # ShopSync
 
 ## Description
-ShopSync is an e-commerce command-line interface (CLI) application that allows users to manage a wide range of products. It uses both SQL and NoSQL databases, providing flexibility in data management. Users can switch between these databases seamlessly, ensuring a versatile shopping experience.
+ShopSync is an e-commerce command-line interface (CLI) application that allows users to manage a wide range of products.
 
 ## Features
 - Manage products and inventory
@@ -10,18 +10,13 @@ ShopSync is an e-commerce command-line interface (CLI) application that allows u
 
 ## Technologies Used
 - Java
-- SQL (mariadb)
-- NoSQL (e.g., MongoDB)
 - Maven
-- [Any additional technologies or frameworks you plan to use]
+- Junit 5
 
 ## Getting Started
 
 ### Prerequisites
 - Java Development Kit (JDK) installed on your system
-- Mariadb installed
-- A compatible NoSQL database (e.g., MongoDB)
-- [Any other dependencies]
 
 ### Installation
 

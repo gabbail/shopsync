@@ -5,7 +5,7 @@ ShopSync is an e-commerce command-line interface (CLI) application that allows u
 
 ## Features
 - Manage products and inventory
-- Switch between SQL and NoSQL databases
+- Switch between SQL
 - User-friendly CLI interface
 
 ## Technologies Used
